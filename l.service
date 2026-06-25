@@ -1,0 +1,27 @@
+[Unit]
+Description=Xray persistent proxy service
+After=network.target
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# 核心：使用 ecs-user 用户和组运行
+User=ec2-user
+Group=ec2-user
+
+# 核心：传入你的 config.json 路径（请确保路径正确）
+ExecStart=/home/ec2-user/XXXray-core/xray run -c /home/ec2-user/XXXray-core/config.json
+
+# 性能与限制优化（适合 Xray 高并发长连接）
+Restart=on-failure
+RestartPreventExitStatus=23
+LimitNPROC=10000
+LimitNOFILE=1000000
+
+# 赋予普通用户监听 1024 以下低位端口（如 443）的特权
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

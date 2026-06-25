@@ -1,0 +1,25 @@
+{
+  "inbounds": [
+    {
+      "port": 10086, // 服务器监听端口
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            // "id": "b831381d-6324-4d53-ad4f-8cda48b30811" // 记得替换这个字段，使用 `xray uuid` 或 `uuidgen` 生成
+            "id": "281e38b2-0a46-4045-8b2e-bd9a9c4b8a5c",
+            "level": 0,
+            "email": "hi9577@xray.com",
+            "flow": "xtls-rprx-vision",
+            "reverse": {}
+          }
+        ]
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "freedom"
+    }
+  ]
+}

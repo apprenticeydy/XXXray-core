@@ -1,0 +1,52 @@
+# ==========================================
+# FlClash / Clash Meta 完整配置文件
+# ==========================================
+
+port: 7890
+socks-port: 7891
+allow-lan: true
+mode: rule
+log-level: info
+ipv6: false
+
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  ipv6: false
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  nameserver:
+    - 8.8.8.8
+    - 1.1.1.1
+    - https://dns.google/dns-query
+
+proxies:
+  - name: "AWS-REALITY-NODE"
+    type: vless
+    server: 3.26.28.64
+    port: 443
+    uuid: 281e38b2-0a46-4045-8b2e-bd9a9c4b8a5c
+    udp: true
+    tls: true
+    flow: xtls-rprx-vision
+    servername: www.shopee.ph # 必须与服务端 realitySettings.dest 一致
+    network: tcp
+    reality-opts:
+      public-key: Mp0owuyq9zTX8dwr6x_Od4VQDFq6cRLs1-IVjkUR4Wk # 务必检查，是公钥(Public Key)
+      short-id: "a1b2c3d4" # 如果服务端写了就填，没写就保持空字符串
+    client-fingerprint: chrome # 模拟浏览器指纹
+
+proxy-groups:
+  - name: 🚀 节点选择
+    type: select
+    proxies:
+      - AWS-REALITY-NODE
+      - DIRECT
+
+rules:
+  # 局域网和私有 IP 直连
+  - GEOIP,private,DIRECT
+  # 中国 IP 直连 (需要有 geoip.dat)
+  - GEOIP,CN,DIRECT
+  # 其余全部走代理
+  - MATCH,🚀 节点选择

@@ -1,0 +1,46 @@
+{
+  "log": { "loglevel": "warning" },
+  "inbounds": [
+    {
+      "port": 443,
+      "protocol": "vless",
+      "tag": "vless-reality",
+      "settings": {
+        "clients": [
+          {
+            "id": "281e38b2-0a46-4045-8b2e-bd9a9c4b8a5c", 
+            "flow": "xtls-rprx-vision"
+          }
+        ],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "reality",
+        "realitySettings": {
+          "show": false,
+          "dest": "www.shopee.ph:443", 
+          "xver": 0,
+          "serverNames": ["www.shopee.ph"], 
+          "privateKey": "gHb14UNmm2F5czUjv2FkUXmwLIyiRYAJMWMYvI1qLkU", 
+          "shortIds": ["a1b2c3d4", ""] 
+        }
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": ["http", "tls", "quic"],
+        "routeOnly": true
+      }
+    }
+  ],
+  "outbounds": [
+    { "protocol": "freedom", "tag": "direct" },
+    { "protocol": "blackhole", "tag": "block" }
+  ],
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": [
+      { "type": "field", "ip": ["geoip:private"], "outboundTag": "block" }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+# Xray-core 二次开发准则
+
+你现在是 Project X 核心团队的高级开发专家，精通 Xray-core 架构、Go 语言网络编程及高性能优化。在修改或生成代码时，必须严格遵守以下规范：
+
+## 1. 核心架构哲学
+- **接口驱动**：所有新协议必须实现 `proxy.Inbound` 或 `proxy.Outbound` 接口。
+- **配置解耦**：配置映射必须遵循 `infra/conf` (JSON) -> `core` (Protobuf) 的流程。严禁在核心逻辑中直接解析 JSON。
+- **Context 传递**：必须正确传播 `context.Context`，并利用 `proxy.SourceFromContext` 等工具提取入站元数据。
+
+## 2. 内存与 I/O 优化 (关键)
+- **零拷贝优先**：尽量使用 `common/buf` 包。优先使用 `buf.MultiBuffer` 进行数据传输，减少 `make([]byte)` 导致的内存分配。
+- **池化管理**：频繁使用的对象应考虑进入 `sync.Pool` 或使用 Xray 内置的 `common/buf` 缓冲池。
+- **避开反射**：在 Data Plane（数据平面/转发逻辑）严禁使用 `reflect`。仅允许在 Control Plane（控制平面/配置加载）使用。
+
+## 3. 安全与协议规范
+- **指纹模拟**：涉及 TLS 的改动必须兼容 `common/protocol/tls` 和 `uTLS` 库。
+- **特征模糊**：任何流控逻辑（Flow Control）应参考 `xtls-rprx-vision`，确保无明显包长度特征。
+- **日志敏感性**：严禁在 `Info` 或 `Warning` 级别打印用户 UUID、Secret、SNI 等隐私信息，仅允许在 `Debug` 级别输出。
+
+## 4. 代码风格
+- **结构化错误**：使用 `common/errors` 抛出错误，必须包含 `.AtWarning()` 或 `.AtError()` 等级别标签。
+- **内置工具链**：在编写逻辑前，先检查 `common/` 目录下是否已有现成工具（如 `common/net` 处理地址，`common/retry` 处理重连），严禁造重复的轮子。
+
+## 给 Cursor 的指令：
+- 当我要求“添加新协议”时，请先帮我定义 `.proto` 配置文件，并生成相应的映射代码。
+- 在涉及数据转发的代码中，请自动检查是否使用了 `buf.Copy` 或 `link.Reader/Writer` 以确保高性能。
+- 如果代码涉及加密，请确保使用常量时间比较，防止侧信道攻击。
